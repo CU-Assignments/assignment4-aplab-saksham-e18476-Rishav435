@@ -1,0 +1,34 @@
+#include <vector> 
+#include <set> 
+#include <algorithm> 
+using namespace std; 
+class Solution { 
+public: 
+vector<vector<int>> getSkyline(vector<vector<int>>& buildings) { 
+vector<pair<int, int>> events; 
+multiset<int> heights = {0};  // Max-Heap using multiset 
+vector<vector<int>> result; 
+// Step 1: Convert buildings into events (left and right edges) 
+for (auto& b : buildings) { 
+events.emplace_back(b[0], -b[2]); // Left edge, height negative for insertion 
+events.emplace_back(b[1], b[2]);  // Right edge, height positive for removal 
+} 
+// Step 2: Sort events (first by x, then by height) 
+sort(events.begin(), events.end()); 
+// Step 3: Sweep Line Algorithm 
+int prevHeight = 0; 
+for (auto& [x, h] : events) { 
+if (h < 0) { 
+heights.insert(-h); // Insert height (left edge) 
+} else { 
+heights.erase(heights.find(h)); // Remove height (right edge) 
+} 
+int currHeight = *heights.rbegin(); // Max height in active buildings 
+if (currHeight != prevHeight) { // If height changes, add to result 
+result.push_back({x, currHeight}); 
+prevHeight = currHeight; 
+} 
+} 
+return result; 
+} 
+};
